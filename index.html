@@ -1,0 +1,1135 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#071914">
+<title>Azure Haven Lodge | Luxury Escape</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- Three.js: real-time 3D engine -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"
+  }
+}
+</script>
+
+<style>
+:root {
+  --gold: #d8bd83;
+  --cream: #f3eee4;
+  --green: #10251d;
+  --dark: #06130f;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  background:var(--dark);
+  color:var(--cream);
+  font-family:'DM Sans',sans-serif;
+  overflow-x:hidden;
+}
+a { color:inherit; text-decoration:none; }
+
+/* FIXED 3D WORLD */
+#world {
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:0;
+  display:block;
+  outline:none;
+}
+#world canvas {
+  width:100%;
+  height:100%;
+  display:block;
+}
+.world-overlay {
+  position:fixed;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  background:linear-gradient(
+    180deg,
+    rgba(2,12,9,.40),
+    transparent 35%,
+    rgba(2,12,9,.12) 65%,
+    rgba(2,12,9,.65)
+  );
+}
+
+/* NAVIGATION */
+header {
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  z-index:20;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:24px 7%;
+  border-bottom:1px solid rgba(255,255,255,.15);
+  background:linear-gradient(180deg,rgba(3,15,11,.55),transparent);
+}
+.brand {
+  font-family:'Cormorant Garamond',serif;
+  color:var(--gold);
+  font-size:27px;
+  letter-spacing:3px;
+  line-height:1;
+}
+.brand small {
+  display:block;
+  font-family:'DM Sans',sans-serif;
+  font-size:8px;
+  letter-spacing:5px;
+  color:white;
+  margin-top:7px;
+}
+.nav-links {
+  display:flex;
+  align-items:center;
+  gap:30px;
+  font-size:10px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+.nav-links a { transition:.3s; }
+.nav-links a:hover { color:var(--gold); }
+.nav-links .book-link {
+  border:1px solid var(--gold);
+  padding:13px 19px;
+  color:var(--gold);
+}
+.menu-button {
+  display:none;
+  background:none;
+  color:white;
+  border:0;
+  font-size:27px;
+  cursor:pointer;
+}
+
+/* PAGE STRUCTURE */
+main {
+  position:relative;
+  z-index:2;
+}
+.scene-section {
+  min-height:100svh;
+  display:flex;
+  align-items:center;
+  padding:130px 9%;
+  position:relative;
+}
+.hero {
+  justify-content:center;
+  text-align:center;
+  min-height:100svh;
+  padding-top:150px;
+}
+.hero-content {
+  max-width:950px;
+  animation:appear 1.5s ease both;
+}
+.eyebrow {
+  color:var(--gold);
+  text-transform:uppercase;
+  letter-spacing:6px;
+  font-size:10px;
+  margin-bottom:25px;
+}
+.hero h1 {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(65px,11vw,140px);
+  font-weight:300;
+  line-height:.82;
+  text-shadow:0 10px 45px #0009;
+}
+.hero h1 em {
+  display:block;
+  color:var(--gold);
+  font-weight:300;
+  margin-top:15px;
+}
+.hero p {
+  max-width:550px;
+  margin:30px auto;
+  font-size:13px;
+  line-height:2;
+  color:#e4e6df;
+}
+.actions {
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:14px;
+  margin-top:30px;
+}
+.button {
+  display:inline-block;
+  padding:17px 26px;
+  font-size:10px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  transition:.3s;
+}
+.button-gold {
+  background:var(--gold);
+  color:#15231c;
+}
+.button-gold:hover {
+  background:#f2dfb4;
+  transform:translateY(-4px);
+  box-shadow:0 12px 30px #0005;
+}
+.button-outline {
+  border:1px solid #ffffffa0;
+}
+.button-outline:hover {
+  border-color:var(--gold);
+  color:var(--gold);
+}
+.scroll-note {
+  position:absolute;
+  bottom:35px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:9px;
+  color:var(--gold);
+  letter-spacing:4px;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.scroll-note:after {
+  content:"";
+  display:block;
+  width:1px;
+  height:45px;
+  margin:12px auto 0;
+  background:var(--gold);
+  animation:scrollLine 1.5s infinite;
+}
+@keyframes scrollLine {
+  0%,100% { transform:scaleY(.4); transform-origin:top; }
+  50% { transform:scaleY(1); transform-origin:top; }
+}
+@keyframes appear {
+  from { opacity:0; transform:translateY(35px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+/* SECTION CONTENT */
+.content-card {
+  max-width:570px;
+  padding:45px;
+  background:rgba(5,20,14,.73);
+  border:1px solid rgba(216,189,131,.3);
+  backdrop-filter:blur(12px);
+  box-shadow:0 20px 70px #0003;
+}
+.content-card.right { margin-left:auto; }
+.section-label {
+  font-size:9px;
+  color:var(--gold);
+  letter-spacing:5px;
+  text-transform:uppercase;
+  margin-bottom:20px;
+}
+.content-card h2 {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(43px,6vw,75px);
+  font-weight:300;
+  line-height:.98;
+}
+.content-card h2 em {
+  color:var(--gold);
+  font-weight:300;
+}
+.content-card p {
+  font-size:13px;
+  line-height:2;
+  color:#d1d9d1;
+  margin-top:22px;
+}
+.content-card .button { margin-top:25px; }
+
+/* ROOMS SECTION */
+.rooms-section {
+  justify-content:center;
+}
+.room-panel {
+  width:min(100%,1050px);
+  background:rgba(5,18,13,.83);
+  backdrop-filter:blur(13px);
+  padding:55px;
+  border:1px solid rgba(216,189,131,.28);
+}
+.room-heading { text-align:center; }
+.room-heading h2 {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(45px,7vw,80px);
+  font-weight:300;
+}
+.room-heading h2 em { color:var(--gold); }
+.room-heading p {
+  color:#c2ccc3;
+  font-size:12px;
+  line-height:1.8;
+  margin-top:15px;
+}
+.room-grid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:15px;
+  margin-top:40px;
+}
+.room-item {
+  padding:25px 17px;
+  border:1px solid rgba(216,189,131,.25);
+  text-align:center;
+  transition:.35s;
+}
+.room-item:hover {
+  transform:translateY(-7px);
+  background:rgba(216,189,131,.09);
+}
+.room-item .symbol {
+  color:var(--gold);
+  font-size:27px;
+  margin-bottom:15px;
+}
+.room-item h3 {
+  font-family:'Cormorant Garamond',serif;
+  font-size:24px;
+  font-weight:400;
+}
+.room-item p {
+  font-size:11px;
+  color:#c1cbc2;
+  line-height:1.8;
+  margin-top:10px;
+}
+
+/* GALLERY */
+.gallery-section { justify-content:center; }
+.gallery-panel {
+  width:min(100%,1000px);
+  padding:45px;
+  background:rgba(4,17,12,.85);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(216,189,131,.25);
+}
+.gallery-panel h2 {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(45px,7vw,75px);
+  font-weight:300;
+  text-align:center;
+}
+.gallery-panel h2 em { color:var(--gold); }
+.gallery-panel > p {
+  text-align:center;
+  font-size:12px;
+  color:#c4cec5;
+  margin-top:12px;
+}
+.gallery-grid {
+  display:grid;
+  grid-template-columns:1.3fr 1fr 1fr;
+  grid-template-rows:180px 180px;
+  gap:12px;
+  margin-top:35px;
+}
+.gallery-grid img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transition:.5s;
+}
+.gallery-image {
+  overflow:hidden;
+}
+.gallery-image:hover img { transform:scale(1.08); }
+.gallery-image:first-child {
+  grid-row:span 2;
+}
+
+/* FINAL CTA */
+.contact-section {
+  justify-content:center;
+  text-align:center;
+}
+.contact-panel {
+  width:min(100%,750px);
+  padding:65px 35px;
+  background:rgba(4,17,12,.85);
+  backdrop-filter:blur(14px);
+  border:1px solid rgba(216,189,131,.35);
+}
+.contact-panel h2 {
+  font-family:'Cormorant Garamond',serif;
+  font-weight:300;
+  font-size:clamp(50px,8vw,90px);
+  line-height:.95;
+}
+.contact-panel h2 em { color:var(--gold); }
+.contact-panel p {
+  color:#d1d9d1;
+  font-size:13px;
+  line-height:1.9;
+  margin:22px auto 0;
+}
+.contact-panel .actions { margin-top:30px; }
+
+/* FOOTER */
+footer {
+  position:relative;
+  z-index:3;
+  text-align:center;
+  background:#050e0b;
+  padding:40px 20px 25px;
+  border-top:1px solid rgba(216,189,131,.2);
+}
+.footer-brand {
+  color:var(--gold);
+  font-family:'Cormorant Garamond',serif;
+  font-size:30px;
+  letter-spacing:4px;
+}
+footer p {
+  color:#9aa69c;
+  font-size:10px;
+  margin-top:10px;
+  line-height:1.8;
+}
+.copyright {
+  border-top:1px solid #ffffff18;
+  margin-top:25px;
+  padding-top:20px;
+  color:#77847b;
+  font-size:9px;
+  letter-spacing:2px;
+}
+
+/* MOBILE */
+@media(max-width:800px) {
+  header { padding:19px 6%; }
+  .menu-button { display:block; }
+  .nav-links {
+    display:none;
+    position:absolute;
+    top:75px;
+    left:0;
+    width:100%;
+    background:rgba(4,17,12,.97);
+    padding:30px;
+    flex-direction:column;
+    gap:25px;
+  }
+  .nav-links.open { display:flex; }
+  .scene-section { padding:115px 6%; }
+  .hero { padding-left:15px; padding-right:15px; }
+  .hero h1 { font-size:clamp(61px,15vw,95px); }
+  .eyebrow { letter-spacing:4px; font-size:9px; }
+  .hero p { font-size:12px; }
+  .content-card { padding:30px 24px; }
+  .content-card.right { margin:0; }
+  .room-panel { padding:35px 20px; }
+  .room-grid { grid-template-columns:1fr; }
+  .room-item { padding:23px; }
+  .gallery-panel { padding:30px 17px; }
+  .gallery-grid {
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:180px 130px 130px;
+  }
+  .gallery-image:first-child {
+    grid-column:span 2;
+    grid-row:auto;
+  }
+  .contact-panel { padding:50px 22px; }
+}
+@media(max-width:380px) {
+  .hero h1 { font-size:57px; }
+  .button { padding:15px 17px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  *,*::before,*::after {
+    scroll-behavior:auto !important;
+    animation-duration:.01ms !important;
+    transition-duration:.01ms !important;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- THE REAL 3D SCENE IS RENDERED HERE -->
+<div id="world" aria-hidden="true"></div>
+<div class="world-overlay"></div>
+
+<header>
+  <a class="brand" href="#home">
+    AZURE HAVEN
+    <small>LODGE & RETREAT</small>
+  </a>
+
+  <nav class="nav-links" id="navLinks">
+    <a href="#home">Home</a>
+    <a href="#experience">Experience</a>
+    <a href="#rooms">Accommodation</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#contact" class="book-link">Enquire Now</a>
+  </nav>
+
+  <button class="menu-button" id="menuButton" aria-label="Open navigation">☰</button>
+</header>
+
+<main>
+
+  <!-- 01: WELCOME -->
+  <section class="scene-section hero" id="home">
+    <div class="hero-content">
+      <div class="eyebrow">A private escape • A world apart</div>
+      <h1>
+        Welcome to
+        <em>Azure Haven</em>
+        Lodge
+      </h1>
+      <p>
+        Escape the ordinary. Discover peaceful surroundings,
+        beautiful architecture and unforgettable moments
+        beside the water.
+      </p>
+      <div class="actions">
+        <a class="button button-gold" href="#experience">Explore the experience</a>
+        <a class="button button-outline" href="#contact">Enquire now</a>
+      </div>
+    </div>
+    <div class="scroll-note">Scroll to enter our world</div>
+  </section>
+
+  <!-- 02: POOL -->
+  <section class="scene-section" id="experience">
+    <div class="content-card">
+      <div class="section-label">01 — The pool experience</div>
+      <h2>Where the water meets <em>serenity.</em></h2>
+      <p>
+        Imagine the sunlight reflecting across crystal-clear water.
+        Take a refreshing dip, relax beside the pool and let
+        the outside world fade away.
+      </p>
+      <a href="#rooms" class="button button-gold">Discover your stay</a>
+    </div>
+  </section>
+
+  <!-- 03: ACCOMMODATION -->
+  <section class="scene-section rooms-section" id="rooms">
+    <div class="room-panel">
+      <div class="room-heading">
+        <div class="section-label">02 — Your private retreat</div>
+        <h2>Stay in <em>beautiful comfort.</em></h2>
+        <p>
+          A place to slow down, recharge and enjoy the little things.
+        </p>
+      </div>
+
+      <div class="room-grid">
+        <article class="room-item">
+          <div class="symbol">✧</div>
+          <h3>Luxury Rooms</h3>
+          <p>Elegant spaces designed for a comfortable stay.</p>
+        </article>
+        <article class="room-item">
+          <div class="symbol">⌂</div>
+          <h3>Private Comfort</h3>
+          <p>A welcoming atmosphere with thoughtful details.</p>
+        </article>
+        <article class="room-item">
+          <div class="symbol">♡</div>
+          <h3>Relaxation</h3>
+          <p>Make time for yourself and enjoy the moment.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04: GALLERY -->
+  <section class="scene-section gallery-section" id="gallery">
+    <div class="gallery-panel">
+      <div class="section-label" style="text-align:center">03 — A glimpse of Azure Haven</div>
+      <h2>Moments worth <em>remembering.</em></h2>
+      <p>Discover the atmosphere of a beautiful escape.</p>
+
+      <div class="gallery-grid">
+        <div class="gallery-image">
+          <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1000&q=85" alt="Luxury resort">
+        </div>
+        <div class="gallery-image">
+          <img src="https://images.unsplash.com/photo-1572331165267-854da2b10ccc?auto=format&fit=crop&w=800&q=85" alt="Swimming pool">
+        </div>
+        <div class="gallery-image">
+          <img src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=800&q=85" alt="Luxury bedroom">
+        </div>
+        <div class="gallery-image">
+          <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=85" alt="Resort">
+        </div>
+        <div class="gallery-image">
+          <img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=85" alt="Modern interior">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05: CONTACT -->
+  <section class="scene-section contact-section" id="contact">
+    <div class="contact-panel">
+      <div class="section-label">04 — Your escape is waiting</div>
+      <h2>Make room for <em>something wonderful.</em></h2>
+      <p>
+        Your next memorable getaway begins with a simple enquiry.
+        Get in touch and start planning your stay.
+      </p>
+      <div class="actions">
+        <a class="button button-gold" href="mailto:YOUR-EMAIL@example.com?subject=Azure%20Haven%20Lodge%20Enquiry">
+          Send an enquiry
+        </a>
+        <a class="button button-outline" href="#home">Back to top ↑</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-brand">AZURE HAVEN</div>
+  <p>LODGE & RETREAT</p>
+  <p>A peaceful escape. A beautiful experience.</p>
+  <div class="copyright">
+    © 2026 AZURE HAVEN LODGE · DEMO BY NOVAWEB ATELIER26
+  </div>
+</footer>
+
+<script type="module">
+import * as THREE from 'three';
+
+/* --------------------------------
+   1. CREATE THE 3D WORLD
+--------------------------------- */
+
+const container = document.getElementById('world');
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x9caa9d);
+scene.fog = new THREE.FogExp2(0x9caa9d, 0.018);
+
+const camera = new THREE.PerspectiveCamera(
+  48,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  250
+);
+
+camera.position.set(0, 8, 20);
+
+const renderer = new THREE.WebGLRenderer({
+  antialias: true,
+  alpha: false,
+  powerPreference: 'high-performance'
+});
+
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.7));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
+
+container.appendChild(renderer.domElement);
+
+/* --------------------------------
+   2. LIGHTING
+--------------------------------- */
+
+const skyLight = new THREE.HemisphereLight(
+  0xdce9ed,
+  0x314b37,
+  2.1
+);
+scene.add(skyLight);
+
+const sun = new THREE.DirectionalLight(0xffe0ae, 3.2);
+sun.position.set(-8, 15, 10);
+sun.castShadow = true;
+sun.shadow.mapSize.set(1024, 1024);
+sun.shadow.camera.left = -22;
+sun.shadow.camera.right = 22;
+sun.shadow.camera.top = 22;
+sun.shadow.camera.bottom = -22;
+scene.add(sun);
+
+const warmLight = new THREE.PointLight(0xffc77d, 35, 30);
+warmLight.position.set(0, 5, -5);
+scene.add(warmLight);
+
+/* --------------------------------
+   3. MATERIALS
+--------------------------------- */
+
+const grassMaterial = new THREE.MeshStandardMaterial({
+  color:0x314b34,
+  roughness:1
+});
+
+const stoneMaterial = new THREE.MeshStandardMaterial({
+  color:0xc4b89e,
+  roughness:.85
+});
+
+const wallMaterial = new THREE.MeshStandardMaterial({
+  color:0xd7d0bd,
+  roughness:.85
+});
+
+const darkMaterial = new THREE.MeshStandardMaterial({
+  color:0x25342d,
+  roughness:.8
+});
+
+const woodMaterial = new THREE.MeshStandardMaterial({
+  color:0x765337,
+  roughness:.72
+});
+
+const glassMaterial = new THREE.MeshPhysicalMaterial({
+  color:0x8daeb0,
+  metalness:.15,
+  roughness:.12,
+  transparent:true,
+  opacity:.48
+});
+
+/* --------------------------------
+   4. HELPERS
+--------------------------------- */
+
+function box(w,h,d,material,x,y,z,cast=true) {
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(w,h,d),
+    material
+  );
+  mesh.position.set(x,y,z);
+  mesh.castShadow = cast;
+  mesh.receiveShadow = true;
+  scene.add(mesh);
+  return mesh;
+}
+
+function cylinder(rt,rb,h,material,x,y,z) {
+  const mesh = new THREE.Mesh(
+    new THREE.CylinderGeometry(rt,rb,h,8),
+    material
+  );
+  mesh.position.set(x,y,z);
+  mesh.castShadow = true;
+  scene.add(mesh);
+  return mesh;
+}
+
+/* --------------------------------
+   5. LANDSCAPE
+--------------------------------- */
+
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(100,100),
+  grassMaterial
+);
+ground.rotation.x = -Math.PI/2;
+ground.position.y = -0.12;
+ground.receiveShadow = true;
+scene.add(ground);
+
+/* Stone pool deck */
+box(17,.22,13,stoneMaterial,0,.02,1,false);
+
+/* --------------------------------
+   6. SWIMMING POOL
+--------------------------------- */
+
+const poolBase = new THREE.Mesh(
+  new THREE.BoxGeometry(10,.38,7),
+  new THREE.MeshStandardMaterial({
+    color:0x173c43,
+    roughness:.35
+  })
+);
+poolBase.position.set(0,.12,2);
+poolBase.receiveShadow = true;
+scene.add(poolBase);
+
+/* Animated-looking reflective water */
+const waterGeometry = new THREE.PlaneGeometry(9.65,6.65,48,48);
+
+const waterMaterial = new THREE.MeshPhysicalMaterial({
+  color:0x28a7b1,
+  metalness:.28,
+  roughness:.12,
+  transmission:.12,
+  transparent:true,
+  opacity:.91,
+  clearcoat:1,
+  clearcoatRoughness:.08
+});
+
+const water = new THREE.Mesh(waterGeometry,waterMaterial);
+water.rotation.x = -Math.PI/2;
+water.position.set(0,.36,2);
+scene.add(water);
+
+/* Pool edge */
+box(10.5,.18,.25,wallMaterial,0,.34,-1.5);
+box(10.5,.18,.25,wallMaterial,0,.34,5.5);
+box(.25,.18,7,wallMaterial,-5.1,.34,2);
+box(.25,.18,7,wallMaterial,5.1,.34,2);
+
+/* Pool lights */
+for(let x=-4;x<=4;x+=2) {
+  const light = new THREE.PointLight(0x54d5e4,5,4);
+  light.position.set(x,.7,2);
+  scene.add(light);
+}
+
+/* --------------------------------
+   7. LUXURY LODGE BUILDING
+--------------------------------- */
+
+/* Main building */
+box(11,3.4,5,wallMaterial,0,2,-6);
+
+/* Roof */
+box(12,.38,6,darkMaterial,0,3.85,-6);
+
+/* Front veranda */
+box(12,.22,2.5,woodMaterial,0,.25,-2.2);
+
+/* Large glass front windows */
+box(2.8,2.5,.08,glassMaterial,-3,2,-3.45,false);
+box(2.8,2.5,.08,glassMaterial,3,2,-3.45,false);
+
+/* Central entrance */
+box(1.7,2.6,.12,woodMaterial,0,1.65,-3.5);
+
+/* Veranda columns */
+for(const x of [-5.2,-2.7,2.7,5.2]) {
+  box(.22,3,.22,stoneMaterial,x,1.75,-2.7);
+}
+
+/* Balcony / upper architectural detail */
+box(11,.18,.35,woodMaterial,0,3.15,-3.35);
+
+/* Entrance steps */
+for(let i=0;i<3;i++) {
+  box(3,.14,.55,stoneMaterial,0,.12+i*.12,-1.1-i*.5);
+}
+
+/* Warm windows */
+for(const x of [-3,3]) {
+  const windowLight = new THREE.PointLight(0xffc77d,7,5);
+  windowLight.position.set(x,2,-3);
+  scene.add(windowLight);
+}
+
+/* --------------------------------
+   8. PALM TREES
+--------------------------------- */
+
+function makeTree(x,z,scale=1) {
+  const group = new THREE.Group();
+
+  const trunk = new THREE.Mesh(
+    new THREE.CylinderGeometry(.12*scale,.23*scale,3.2*scale,8),
+    new THREE.MeshStandardMaterial({color:0x705039})
+  );
+  trunk.position.y=1.6*scale;
+  trunk.castShadow=true;
+  group.add(trunk);
+
+  const leafMaterial = new THREE.MeshStandardMaterial({
+    color:0x285a38,
+    roughness:.85,
+    side:THREE.DoubleSide
+  });
+
+  for(let i=0;i<7;i++) {
+    const angle=(i/7)*Math.PI*2;
+    const leaf=new THREE.Mesh(
+      new THREE.ConeGeometry(.24*scale,2.6*scale,5),
+      leafMaterial
+    );
+    leaf.position.set(
+      Math.cos(angle)*.8*scale,
+      3.2*scale,
+      Math.sin(angle)*.8*scale
+    );
+    leaf.rotation.z=-Math.cos(angle)*.65;
+    leaf.rotation.x=Math.sin(angle)*.65;
+    leaf.rotation.y=angle;
+    group.add(leaf);
+  }
+
+  group.position.set(x,0,z);
+  scene.add(group);
+  return group;
+}
+
+const trees = [
+  makeTree(-8,-4,1.4),
+  makeTree(8,-5,1.5),
+  makeTree(-8,5,1.1),
+  makeTree(8,7,1.2),
+  makeTree(-12,0,1.5),
+  makeTree(12,1,1.4),
+  makeTree(-5,-12,1.1),
+  makeTree(6,-13,1.2)
+];
+
+/* --------------------------------
+   9. GARDEN SHRUBS
+--------------------------------- */
+
+const shrubMaterial = new THREE.MeshStandardMaterial({
+  color:0x315b38,
+  roughness:1
+});
+
+for(let i=0;i<30;i++) {
+  const shrub=new THREE.Mesh(
+    new THREE.SphereGeometry(.35+Math.random()*.3,8,7),
+    shrubMaterial
+  );
+  const side=i%2===0?-1:1;
+  shrub.position.set(
+    side*(6+Math.random()*4),
+    .3,
+    -10+Math.random()*18
+  );
+  shrub.scale.y=.7;
+  shrub.castShadow=true;
+  scene.add(shrub);
+}
+
+/* --------------------------------
+   10. POOLSIDE FURNITURE
+--------------------------------- */
+
+function sunLounger(x,z,rotation=0) {
+  const group=new THREE.Group();
+
+  const frame=new THREE.Mesh(
+    new THREE.BoxGeometry(1.1,.12,2.2),
+    woodMaterial
+  );
+  frame.position.y=.45;
+  group.add(frame);
+
+  const cushion=new THREE.Mesh(
+    new THREE.BoxGeometry(1, .13, 2),
+    new THREE.MeshStandardMaterial({
+      color:0xe8dfc9,
+      roughness:.9
+    })
+  );
+  cushion.position.y=.55;
+  group.add(cushion);
+
+  group.position.set(x,0,z);
+  group.rotation.y=rotation;
+  scene.add(group);
+}
+
+sunLounger(-6,1,.2);
+sunLounger(-6,4,.2);
+sunLounger(6,1,-.2);
+sunLounger(6,4,-.2);
+
+/* Small outdoor tables */
+for(const x of [-6.8,6.8]) {
+  cylinder(.45,.45,.12,woodMaterial,x,.55,2.5);
+  cylinder(.07,.07,.7,darkMaterial,x,.25,2.5);
+}
+
+/* --------------------------------
+   11. PATHWAY LIGHTS
+--------------------------------- */
+
+for(let z=-10;z<9;z+=2.5) {
+  for(const x of [-7,7]) {
+    cylinder(.09,.12,.6,darkMaterial,x,.3,z);
+    const bulb=new THREE.PointLight(0xffd28d,2.5,3);
+    bulb.position.set(x,.7,z);
+    scene.add(bulb);
+  }
+}
+
+/* --------------------------------
+   12. CAMERA SCROLL JOURNEY
+--------------------------------- */
+
+const cameraStops = [
+  {
+    position:new THREE.Vector3(0,8,21),
+    target:new THREE.Vector3(0,1,-1)
+  },
+  {
+    position:new THREE.Vector3(0,5,12),
+    target:new THREE.Vector3(0,1,1)
+  },
+  {
+    position:new THREE.Vector3(-10,6,9),
+    target:new THREE.Vector3(0,1,-3)
+  },
+  {
+    position:new THREE.Vector3(0,7,15),
+    target:new THREE.Vector3(0,2,-6)
+  },
+  {
+    position:new THREE.Vector3(11,7,13),
+    target:new THREE.Vector3(0,2,-4)
+  },
+  {
+    position:new THREE.Vector3(0,9,22),
+    target:new THREE.Vector3(0,1,-3)
+  }
+];
+
+const cameraPosition=new THREE.Vector3();
+const cameraTarget=new THREE.Vector3();
+const lookTarget=new THREE.Vector3();
+
+let scrollProgress=0;
+
+function updateScroll() {
+  const maxScroll=document.documentElement.scrollHeight-window.innerHeight;
+  scrollProgress=maxScroll>0 ? window.scrollY/maxScroll : 0;
+}
+
+window.addEventListener('scroll',updateScroll,{passive:true});
+updateScroll();
+
+function smoothStep(t) {
+  return t*t*(3-2*t);
+}
+
+function updateCamera() {
+  const scaled=scrollProgress*(cameraStops.length-1);
+  const index=Math.min(Math.floor(scaled),cameraStops.length-2);
+  const local=smoothStep(scaled-index);
+
+  cameraPosition.lerpVectors(
+    cameraStops[index].position,
+    cameraStops[index+1].position,
+    local
+  );
+
+  cameraTarget.lerpVectors(
+    cameraStops[index].target,
+    cameraStops[index+1].target,
+    local
+  );
+
+  camera.position.lerp(cameraPosition,.055);
+
+  lookTarget.lerp(cameraTarget,.055);
+  camera.lookAt(lookTarget);
+}
+
+/* --------------------------------
+   13. ANIMATE WATER AND SCENE
+--------------------------------- */
+
+const clock=new THREE.Clock();
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  const time=clock.getElapsedTime();
+
+  /* Subtle water movement */
+  const positions=waterGeometry.attributes.position;
+
+  for(let i=0;i<positions.count;i++) {
+    const x=positions.getX(i);
+    const y=positions.getY(i);
+
+    const wave=
+      Math.sin(x*1.5+time*1.4)*.035+
+      Math.cos(y*1.8+time)*.025;
+
+    positions.setZ(i,wave);
+  }
+
+  positions.needsUpdate=true;
+  waterGeometry.computeVertexNormals();
+
+  /* Gentle tree movement */
+  trees.forEach((tree,i)=>{
+    tree.rotation.z=Math.sin(time*.35+i)*.012;
+  });
+
+  updateCamera();
+
+  renderer.render(scene,camera);
+}
+
+animate();
+
+/* --------------------------------
+   14. RESIZE FOR MOBILE
+--------------------------------- */
+
+window.addEventListener('resize',()=>{
+  camera.aspect=window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,1.7));
+  renderer.setSize(window.innerWidth,window.innerHeight);
+});
+
+/* --------------------------------
+   15. MOBILE MENU
+--------------------------------- */
+
+const menuButton=document.getElementById('menuButton');
+const navLinks=document.getElementById('navLinks');
+
+menuButton.addEventListener('click',()=>{
+  navLinks.classList.toggle('open');
+  menuButton.textContent=
+    navLinks.classList.contains('open')?'×':'☰';
+});
+
+document.querySelectorAll('.nav-links a').forEach(link=>{
+  link.addEventListener('click',()=>{
+    navLinks.classList.remove('open');
+    menuButton.textContent='☰';
+  });
+});
+
+/* WebGL support fallback */
+if(!renderer.capabilities.isWebGL2 && !renderer.capabilities.isWebGL) {
+  document.getElementById('world').innerHTML=
+    '<p style="color:white;text-align:center;padding:40px">3D display is not supported by this browser.</p>';
+}
+</script>
+
+</body>
+</html>
